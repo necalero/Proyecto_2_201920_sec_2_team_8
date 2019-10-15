@@ -106,10 +106,7 @@ public class HashTableLinearProbing <T extends Comparable<T>,V extends Comparabl
 		return false;
 	}
 
-	public Iterator<T> keys()
-	{
-		return null;
-	}
+	
 
 	@SuppressWarnings("unchecked")
 	public void rehash(int cap)

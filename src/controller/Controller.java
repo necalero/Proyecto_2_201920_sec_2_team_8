@@ -27,9 +27,6 @@ public class Controller {
 	{
 		Scanner lector = new Scanner(System.in);
 		boolean fin = false;
-		String dato = "";
-		String respuesta = "";
-
 		while( !fin ){
 			view.printMenu();
 
@@ -39,12 +36,11 @@ public class Controller {
 			case 1:
 				view.printMessage("Se estan cargando los viajes: ");
 				modelo = new MVCModelo();
-				view.printMessage("Ingrese el numero de trimestre a cargar: (1 o 2)");
-				int trimestre=lector.nextInt();
+				
 				
 				try
 				{
-					modelo.cargar(trimestre);
+					modelo.cargar();
 				}
 				catch(Exception e)
 				{
@@ -54,21 +50,32 @@ public class Controller {
 				break;
 
 			case 2:
-				view.printMessage("Generar muestra de n elementos:");
-				view.printMessage("Ingrese el tamaño de la muestra");
-				int n=lector.nextInt();
 				
-
+			case 3:
 				
+			case 4:
 				
+			case 5:
 				
-
+			case 6:
+				
+			case 7:
+				
+			case 8:
+			
+			case 9:
+				
+			case 10:
+				
+			case 11:
+			
 			default: 
 				view.printMessage("--------- \n Opcion Invalida !! \n---------");
 				break;
 				
 			}
 		}
+		lector.close();
 
 	}	
 }
