@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import model.logic.NoExisteException;
 
-public class HashTableLinearProbing <T extends Comparable<T>,V extends Comparable<V>>
+public class HashTableLinearProbing <T extends Comparable<Integer>,V extends Comparable<UBERTrip>>
 {
 	int capacidad;
 	int cantKeys;
