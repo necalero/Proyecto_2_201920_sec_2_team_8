@@ -28,6 +28,7 @@ import model.data_structures.Nodo;
 import model.data_structures.NodoRedVial;
 import model.data_structures.TravelTime;
 import model.data_structures.UBERTrip;
+import model.data_structures.ZonaUber;
 import model.data_structures.ZonasUber;
 
 
@@ -141,7 +142,12 @@ public class MVCModelo {
 		{
 			reader = new JsonReader(new FileReader(ruta));
 			JsonElement elem = JsonParser.parseReader(reader);
-			JsonElement e2 = elem.getAsJsonObject().get("body").getAsJsonObject().get("data");
+			JsonObject jobj = elem.getAsJsonObject();
+			JsonArray todas = jobj.getAsJsonArray("features");
+			
+			
+			
+			
 			
 		}catch (Exception e) {
 			// TODO: handle exception

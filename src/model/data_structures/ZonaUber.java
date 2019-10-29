@@ -22,9 +22,13 @@ public class ZonaUber
 		this.setProperties(properties);
 		
 	}
+	
+	/**---------------------------------------
+	 * Getters & setters
+	 * ---------------------------------------
+	 */
 
-
-	public Properties getProperties() {
+	public Properties darProperties() {
 		return properties;
 	}
 
@@ -34,7 +38,7 @@ public class ZonaUber
 	}
 
 
-	public Geometry getGeometry() {
+	public Geometry darGeometry() {
 		return geometry;
 	}
 
