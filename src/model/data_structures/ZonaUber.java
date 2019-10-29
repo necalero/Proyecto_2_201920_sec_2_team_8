@@ -6,7 +6,7 @@ public class ZonaUber
 	 * Atributos
 	 * ---------------------------------------
 	 */
-	
+	private String type;
 	private Geometry geometry;
 	private Properties properties;
 	
@@ -15,9 +15,9 @@ public class ZonaUber
 	 * Constructor
 	 * ---------------------------------------
 	 */
-	public ZonaUber(Geometry geometry, Properties properties)
+	public ZonaUber(String type, Geometry geometry, Properties properties)
 	{
-		
+		this.type = type;
 		this.setGeometry(geometry);
 		this.setProperties(properties);
 		

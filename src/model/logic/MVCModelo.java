@@ -2,15 +2,9 @@ package model.logic;
 
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-
-import org.omg.PortableInterceptor.AdapterStateHelper;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,15 +15,14 @@ import com.opencsv.CSVReader;
 
 
 
-import model.data_structures.DoublyLinkedList;
+import model.data_structures.Geometry;
 import model.data_structures.HashTableLinearProbing;
-import model.data_structures.HashTableSeparateChaining;
 import model.data_structures.Nodo;
 import model.data_structures.NodoRedVial;
-import model.data_structures.TravelTime;
+import model.data_structures.Properties;
 import model.data_structures.UBERTrip;
 import model.data_structures.ZonaUber;
-import model.data_structures.ZonasUber;
+
 
 
 /**
@@ -43,8 +36,8 @@ public class MVCModelo {
 	private HashTableLinearProbing datosHora;
 	private HashTableLinearProbing datosDia;
 	private HashTableLinearProbing datosMes;
-	private ZonasUber datosZona;
 	private HashTableLinearProbing datosRedVial;
+	private ZonaUber[] zonasUber;
 
 
 
@@ -65,7 +58,6 @@ public class MVCModelo {
 	 * @throws IOException 
 	 * @throws NoExisteException 
 	 */
-	@SuppressWarnings("unchecked")
 	public int[] cargar() throws IOException, NoExisteException
 	{	
 
@@ -140,18 +132,32 @@ public class MVCModelo {
 		JsonReader reader;
 		try
 		{
+			Gson gson = new Gson();
 			reader = new JsonReader(new FileReader(ruta));
 			JsonElement elem = JsonParser.parseReader(reader);
 			JsonObject jobj = elem.getAsJsonObject();
 			JsonArray todas = jobj.getAsJsonArray("features");
-			
-			
-			
-			
-			
+			zonasUber = new ZonaUber[todas.size()];
+			for(int i = 0; i< todas.size(); i++)
+			{
+				JsonObject actual = todas.get(i).getAsJsonObject();
+				String typeFeature = actual.getAsJsonObject("type").getAsString();
+				JsonObject geometry = actual.getAsJsonObject("geometry");
+				String typeGeom = geometry.getAsJsonObject("type").getAsString();
+				JsonArray coordinatesJSON = geometry.getAsJsonArray("coordinates");
+				String rawNumbers = coordinatesJSON.getAsString().replace("[", "").replace("]", "");
+				String[] coordinates = rawNumbers.split(",");
+				Geometry nuevaGeometry = new Geometry(typeGeom, coordinates);
+				JsonObject propertiesJSON = actual.getAsJsonObject("properties");
+				Properties properties = gson.fromJson(propertiesJSON, Properties.class);
+				zonasUber[i] = new ZonaUber(typeFeature, nuevaGeometry, properties);
+
+			}
+			return zonasUber.length;
 		}catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
+		return 0;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -160,17 +166,19 @@ public class MVCModelo {
 		FileReader fr = new FileReader(ruta);
 		BufferedReader br = new BufferedReader(fr);
 		String linea= br.readLine();
-		while(linea!=nul)
+		int contador = 0;
+		while(linea!=null)
 		{
 			String[] partes = linea.split(",");
 			NodoRedVial nuevo = new NodoRedVial(partes[0], partes[1], partes[2]);
 			Nodo nuevoNodo = new Nodo<NodoRedVial>(nuevo);
 			String Key = partes[0];
 			datosRedVial.put(Key, (Comparable) nuevoNodo);
+			contador++;
 			linea = br.readLine();
 		}
-
-		return 0;
+		br.close();
+		return contador;
 	}
 
 
