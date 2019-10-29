@@ -2,6 +2,7 @@ package model.logic;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import model.data_structures.NodoRedVial;
 import model.data_structures.Properties;
 import model.data_structures.UBERTrip;
 import model.data_structures.ZonaUber;
+import model.data_structures.BSTRojoNegro.ArbolesRYN;
 
 
 
@@ -37,7 +39,7 @@ public class MVCModelo {
 	private HashTableLinearProbing datosDia;
 	private HashTableLinearProbing datosMes;
 	private HashTableLinearProbing datosRedVial;
-	private ZonaUber[] zonasUber;
+	private ArbolesRYN zonasUber;
 
 
 
@@ -61,33 +63,41 @@ public class MVCModelo {
 	public int[] cargar() throws IOException, NoExisteException
 	{	
 
+		
+		try {
+			/**
+			 * Se crea un arreglo de enteros para reportar 
+			 * 1. El número de viajes que se cargaron de cada archivo CSV
+			 * 2. El número de zonas que se cargaron del archivo JSON
+			 * 3. El número de nodos (esquinas) de la malla vial del archivo TXT
+			 */
+			int[] resultados = new int[3];
 
-		/**
-		 * Se crea un arreglo de enteros para reportar 
-		 * 1. El número de viajes que se cargaron de cada archivo CSV
-		 * 2. El número de zonas que se cargaron del archivo JSON
-		 * 3. El número de nodos (esquinas) de la malla vial del archivo TXT
-		 */
-		int[] resultados = new int[3];
-
-		//Se utilizan metodos auxiliares para cargar los archivos de cada tipo
-		int cantidadViajesCargados = 0; 
-		cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-WeeklyAggregate.csv",1,"weekly");
-		cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-WeeklyAggregate.csv",2,"weekly");
-		cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-MonthlyAggregate.csv",1,"monthly");
-		cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-MonthlyAggregate.csv",2,"monthly");
-		cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-HourlyAggregate.csv",1,"hourly");
-		cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-HourlyAggregate.csv",2,"hourly");
+					//Se utilizan metodos auxiliares para cargar los archivos de cada tipo
+					int cantidadViajesCargados = 0; 
+					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-WeeklyAggregate.csv",1,"weekly");
+					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-WeeklyAggregate.csv",2,"weekly");
+					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-MonthlyAggregate.csv",1,"monthly");
+					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-MonthlyAggregate.csv",2,"monthly");
+					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-HourlyAggregate.csv",1,"hourly");
+					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-HourlyAggregate.csv",2,"hourly");
 
 
-		int cantidadZonasCargadas = cargarJSON("./data/bogota-cadastral.json");
-		int cantidadNodosCargados = cargarTXT("./data/Nodes_of_red_vial-wgs84_shp.txt");
+					int cantidadZonasCargadas = cargarJSON("./data/bogota-cadastral.json");
+					int cantidadNodosCargados = cargarTXT("./data/Nodes_of_red_vial-wgs84_shp.txt");
 
-		resultados[0] = cantidadViajesCargados;
-		resultados[1] = cantidadZonasCargadas;
-		resultados[2] = cantidadNodosCargados;
+					resultados[0] = cantidadViajesCargados;
+					resultados[1] = cantidadZonasCargadas;
+					resultados[2] = cantidadNodosCargados;
 
-		return resultados;
+					return resultados;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("No sirvió :(");
+			e.printStackTrace();
+			
+		}
+		return null;
 
 
 	}
@@ -97,7 +107,8 @@ public class MVCModelo {
 	{
 		int cantidadViajesCargados = 0;
 		CSVReader reader;
-		FileReader fr = new FileReader(ruta);
+		File arc = new File(ruta);
+		FileReader fr = new FileReader(arc);
 		reader = new CSVReader(fr);
 		reader.readNext();
 		String [] nextLine=reader.readNext();
@@ -127,6 +138,7 @@ public class MVCModelo {
 		return cantidadViajesCargados;
 	}
 
+	@SuppressWarnings("unchecked")
 	public int cargarJSON(String ruta) throws FileNotFoundException
 	{
 		JsonReader reader;
@@ -137,7 +149,8 @@ public class MVCModelo {
 			JsonElement elem = JsonParser.parseReader(reader);
 			JsonObject jobj = elem.getAsJsonObject();
 			JsonArray todas = jobj.getAsJsonArray("features");
-			zonasUber = new ZonaUber[todas.size()];
+			zonasUber = new ArbolesRYN<>();
+			//zonasUber = new ZonaUber[todas.size()];
 			for(int i = 0; i< todas.size(); i++)
 			{
 				JsonObject actual = todas.get(i).getAsJsonObject();
@@ -150,10 +163,12 @@ public class MVCModelo {
 				Geometry nuevaGeometry = new Geometry(typeGeom, coordinates);
 				JsonObject propertiesJSON = actual.getAsJsonObject("properties");
 				Properties properties = gson.fromJson(propertiesJSON, Properties.class);
-				zonasUber[i] = new ZonaUber(typeFeature, nuevaGeometry, properties);
+				String key = actual.getAsJsonObject("properties").getAsJsonObject("DISPLAY_NAME").getAsString();
+				zonasUber.put(key, new ZonaUber(typeFeature, nuevaGeometry, properties));
+				
 
 			}
-			return zonasUber.length;
+			return zonasUber.size();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
