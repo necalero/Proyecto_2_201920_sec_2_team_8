@@ -2,14 +2,24 @@ package model.logic;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.omg.PortableInterceptor.AdapterStateHelper;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.opencsv.CSVReader;
+
+
 
 import model.data_structures.DoublyLinkedList;
 import model.data_structures.HashTableLinearProbing;
@@ -126,13 +136,16 @@ public class MVCModelo {
 
 	public int cargarJSON(String ruta) throws FileNotFoundException
 	{
-		int cant = 0;
-		Gson gson;
-		boolean x =false;
-		FileReader fr = new FileReader(ruta);
-		gson = new Gson();
-		return cant;
-
+		JsonReader reader;
+		try
+		{
+			reader = new JsonReader(new FileReader(ruta));
+			JsonElement elem = JsonParser.parseReader(reader);
+			JsonElement e2 = elem.getAsJsonObject().get("body").getAsJsonObject().get("data");
+			
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -141,7 +154,7 @@ public class MVCModelo {
 		FileReader fr = new FileReader(ruta);
 		BufferedReader br = new BufferedReader(fr);
 		String linea= br.readLine();
-		while(linea!=null)
+		while(linea!=nul)
 		{
 			String[] partes = linea.split(",");
 			NodoRedVial nuevo = new NodoRedVial(partes[0], partes[1], partes[2]);
