@@ -195,7 +195,78 @@ public class MVCModelo {
 		br.close();
 		return contador;
 	}
-
+	
+	/**
+	 * Obtener las N letras más frecuentes por las que comienza el nombre de una zona
+	 */
+	public String[] reqFunc1A(short N)
+	{
+		return null;
+	}
+	/**
+	 * Buscar los nodos que delimitan las zonas por Localización Geográfica (latitud, longitud)
+	 */
+	public String[] reqFunc2A(double pLatitud, double pLongitud)
+	{
+		return null;
+	}
+	/**
+	 * Buscar los tiempos promedio de viaje que están en un rango y que son del primer trimestre del 2018.
+	 */
+	public String[] reqFunc3A(double pMin, double pMax, short N)
+	{
+		return null;
+	}
+	/**
+	 * Buscar los N zonas que están más al norte.
+	 */
+	public String[] reqFunc1B(short N)
+	{
+		return null;
+	}
+	/**
+	 * Buscar nodos de la malla vial por Localización Geográfica (latitud, longitud).
+	 */
+	public String[] reqFunc2B(double pLatitud, double pLongitud)
+	{
+		return null;
+	}
+	/**
+	 * Buscar los tiempos de espera que tienen una desviación estándar en un rango dado y que son del primer trimestre del 2018
+	 */
+	public String[] reqFunc3B(double pLimiteBajoDesviacionEstandar, double pLimiteAltoDesviacionEstandar)
+	{
+		return null;
+	}
+	/**
+	 * Retornar todos los tiempos de viaje promedio que salen de una zona dada y a una hora dada
+	 */
+	public String[] reqFunc1C(int pIdZonaSalida, double pHora)
+	{
+		return null;
+	}
+	/**
+	 * Retornar todos los tiempos de viaje que llegan de una zona dada y en un rango de horas
+	 */
+	public String[] reqFunc2C(int idZonaLlegada, double pHoraMin, double pHoraMax)
+	{
+		return null;
+	}
+	/**
+	 * Obtener las N zonas priorizadas por la mayor cantidad de nodos que definen su frontera.
+	 */
+	public String[] reqFunc3C(int N)
+	{
+		return null;
+	}
+	/**
+	 * Gráfica ASCII - Porcentaje de datos faltantes para el primer semestre 2018.
+	 */
+	public String[][] reqFunc4C(int N)
+	{
+		return null;
+	}
+	
 
 
 
