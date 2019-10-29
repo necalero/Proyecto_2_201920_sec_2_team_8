@@ -2,9 +2,10 @@
 	import java.util.Comparator;
 	import java.util.Iterator;
 	import java.util.NoSuchElementException;
-public class MaxPQ <Key> implements Iterable<Key> 
+public class MaxPQ <Key, Value> implements Iterable<Key> 
 {
-	private Key[] pq;                    // store items at indices 1 to n
+	private Key[] pqKeys;                    // store items at indices 1 to n
+	private Value[] pqValues;
 	private int n;                       // number of items on priority queue
 	private Comparator<Key> comparator;  // optional comparator
 
@@ -14,7 +15,8 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 * @param  initCapacity the initial capacity of this priority queue
 	 */
 	public MaxPQ(int initCapacity) {
-		pq = (Key[]) new Object[initCapacity + 1];
+		pqKeys = (Key[]) new Object[initCapacity + 1];
+		pqValues = (Value[]) new Object[initCapacity + 1];
 		n = 0;
 	}
 
@@ -34,7 +36,8 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 */
 	public MaxPQ(int initCapacity, Comparator<Key> comparator) {
 		this.comparator = comparator;
-		pq = (Key[]) new Object[initCapacity + 1];
+		pqKeys = (Key[]) new Object[initCapacity + 1];
+		pqValues = (Value[]) new Object[initCapacity + 1];
 		n = 0;
 	}
 
@@ -53,11 +56,17 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 *
 	 * @param  keys the array of keys
 	 */
-	public MaxPQ(Key[] keys) {
+	public MaxPQ(Key[] keys, Value[] values)
+	{
 		n = keys.length;
-		pq = (Key[]) new Object[keys.length + 1];
+		pqKeys = (Key[]) new Object[keys.length + 1];
+		pqValues = (Value[]) new Object[keys.length + 1];
 		for (int i = 0; i < n; i++)
-			pq[i+1] = keys[i];
+		{
+			pqKeys[i+1] = keys[i];
+			pqValues[i+1] = values[i];
+		}
+			
 		for (int k = n/2; k >= 1; k--)
 			sink(k);
 		assert isMaxHeap();
@@ -92,17 +101,23 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 */
 	public Key max() {
 		if (isEmpty()) throw new NoSuchElementException("Priority queue underflow");
-		return pq[1];
+		return pqKeys[1];
 	}
-
+	public Value maxValue() {
+		if (isEmpty()) throw new NoSuchElementException("Priority queue underflow");
+		return pqValues[1];
+	}
 	// helper function to double the size of the heap array
 	private void resize(int capacity) {
 		assert capacity > n;
 		Key[] temp = (Key[]) new Object[capacity];
+		Value[] tempVal = (Value[]) new Object[capacity];
 		for (int i = 1; i <= n; i++) {
-			temp[i] = pq[i];
+			temp[i] = pqKeys[i];
+			tempVal[i] = pqValues[i];
 		}
-		pq = temp;
+		pqKeys = temp;
+		pqValues = tempVal;
 	}
 
 
@@ -111,13 +126,14 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 *
 	 * @param  x the new key to add to this priority queue
 	 */
-	public void insert(Key x) {
+	public void insert(Key x, Value y) {
 
 		// double size of array if necessary
-		if (n == pq.length - 1) resize(2 * pq.length);
+		if (n == pqKeys.length - 1) resize(2 * pqKeys.length);
 
 		// add x, and percolate it up to maintain heap invariant
-		pq[++n] = x;
+		pqKeys[++n] = x;
+		pqValues[++n] = y;
 		swim(n);
 		assert isMaxHeap();
 	}
@@ -130,11 +146,12 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 */
 	public Key delMax() {
 		if (isEmpty()) throw new NoSuchElementException("Priority queue underflow");
-		Key max = pq[1];
+		Key max = pqKeys[1];
 		exch(1, n--);
 		sink(1);
-		pq[n+1] = null;     // to avoid loitering and help with garbage collection
-		if ((n > 0) && (n == (pq.length - 1) / 4)) resize(pq.length / 2);
+		pqKeys[n+1] = null;     // to avoid loitering and help with garbage collection
+		pqValues[n+1] = null; 
+		if ((n > 0) && (n == (pqKeys.length - 1) / 4)) resize(pqKeys.length / 2);
 		assert isMaxHeap();
 		return max;
 	}
@@ -166,28 +183,31 @@ public class MaxPQ <Key> implements Iterable<Key>
 	 ***************************************************************************/
 	private boolean less(int i, int j) {
 		if (comparator == null) {
-			return ((Comparable<Key>) pq[i]).compareTo(pq[j]) < 0;
+			return ((Comparable<Key>) pqKeys[i]).compareTo(pqKeys[j]) < 0;
 		}
 		else {
-			return comparator.compare(pq[i], pq[j]) < 0;
+			return comparator.compare(pqKeys[i], pqKeys[j]) < 0;
 		}
 	}
 
 	private void exch(int i, int j) {
-		Key swap = pq[i];
-		pq[i] = pq[j];
-		pq[j] = swap;
+		Key swap = pqKeys[i];
+		pqKeys[i] = pqKeys[j];
+		pqKeys[j] = swap;
+		Value swapVal = pqValues[i];
+		pqValues[i] = pqValues[j];
+		pqValues[j] = swapVal;
 	}
 
 	// is pq[1..n] a max heap?
 	private boolean isMaxHeap() {
 		for (int i = 1; i <= n; i++) {
-			if (pq[i] == null) return false;
+			if (pqKeys[i] == null) return false;
 		}
-		for (int i = n+1; i < pq.length; i++) {
-			if (pq[i] != null) return false;
+		for (int i = n+1; i < pqKeys.length; i++) {
+			if (pqKeys[i] != null) return false;
 		}
-		if (pq[0] != null) return false;
+		if (pqKeys[0] != null) return false;
 		return isMaxHeapOrdered(1);
 	}
 
@@ -220,15 +240,15 @@ public class MaxPQ <Key> implements Iterable<Key>
 	private class HeapIterator implements Iterator<Key> {
 
 		// create a new pq
-		private MaxPQ<Key> copy;
+		private MaxPQ<Key, Value> copy;
 
 		// add all items to copy of heap
 		// takes linear time since already in heap order so no keys move
 		public HeapIterator() {
-			if (comparator == null) copy = new MaxPQ<Key>(size());
-			else                    copy = new MaxPQ<Key>(size(), comparator);
+			if (comparator == null) copy = new MaxPQ<Key, Value>(size());
+			else                    copy = new MaxPQ<Key, Value>(size(), comparator);
 			for (int i = 1; i <= n; i++)
-				copy.insert(pq[i]);
+				copy.insert(pqKeys[i],pqValues[i]);
 		}
 
 		public boolean hasNext()  { return !copy.isEmpty();                     }
@@ -242,26 +262,4 @@ public class MaxPQ <Key> implements Iterable<Key>
 
 
 }
-/******************************************************************************
- *  Copyright 2002-2018, Robert Sedgewick and Kevin Wayne.
- *
- *  This file is part of algs4.jar, which accompanies the textbook
- *
- *      Algorithms, 4th edition by Robert Sedgewick and Kevin Wayne,
- *      Addison-Wesley Professional, 2011, ISBN 0-321-57351-X.
- *      http://algs4.cs.princeton.edu
- *
- *
- *  algs4.jar is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  algs4.jar is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with algs4.jar.  If not, see http://www.gnu.org/licenses.
- ******************************************************************************/
+

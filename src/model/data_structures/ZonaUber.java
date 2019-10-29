@@ -1,6 +1,6 @@
 package model.data_structures;
 
-public class ZonaUber 
+public class ZonaUber <T extends Comparable<Integer>>
 {
 	/**---------------------------------------
 	 * Atributos

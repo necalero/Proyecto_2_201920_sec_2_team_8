@@ -36,6 +36,10 @@ public class Geometry {
 		aDevolver[1] = coordinates[1][numeroColumna];
 		return aDevolver;
 	}
+	public int darCoordinatesSize()
+	{
+		return (coordinates.length * coordinates[0].length);
+	}
 
 	public void setCoordinates(double[][] coordinates) {
 		this.coordinates = coordinates;

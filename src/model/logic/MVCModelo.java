@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.Iterator;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -18,12 +21,14 @@ import com.opencsv.CSVReader;
 
 import model.data_structures.Geometry;
 import model.data_structures.HashTableLinearProbing;
+import model.data_structures.MaxPQ;
 import model.data_structures.Nodo;
 import model.data_structures.NodoRedVial;
 import model.data_structures.Properties;
 import model.data_structures.UBERTrip;
 import model.data_structures.ZonaUber;
 import model.data_structures.BSTRojoNegro.ArbolesRYN;
+import model.data_structures.BSTRojoNegro.NodoBSTRojoNegro;
 
 
 
@@ -39,7 +44,8 @@ public class MVCModelo {
 	private HashTableLinearProbing datosDia;
 	private HashTableLinearProbing datosMes;
 	private HashTableLinearProbing datosRedVial;
-	private ArbolesRYN zonasUber;
+	private ArbolesRYN zonasUberRN;
+	private HashTableLinearProbing zonasUberHash;
 
 
 
@@ -63,7 +69,7 @@ public class MVCModelo {
 	public int[] cargar() throws IOException, NoExisteException
 	{	
 
-		
+
 		try {
 			/**
 			 * Se crea un arreglo de enteros para reportar 
@@ -73,29 +79,29 @@ public class MVCModelo {
 			 */
 			int[] resultados = new int[3];
 
-					//Se utilizan metodos auxiliares para cargar los archivos de cada tipo
-					int cantidadViajesCargados = 0; 
-					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-WeeklyAggregate.csv",1,"weekly");
-					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-WeeklyAggregate.csv",2,"weekly");
-					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-MonthlyAggregate.csv",1,"monthly");
-					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-MonthlyAggregate.csv",2,"monthly");
-					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-HourlyAggregate.csv",1,"hourly");
-					cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-HourlyAggregate.csv",2,"hourly");
+			//Se utilizan metodos auxiliares para cargar los archivos de cada tipo
+			int cantidadViajesCargados = 0; 
+			cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-WeeklyAggregate.csv",1,"weekly");
+			cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-WeeklyAggregate.csv",2,"weekly");
+			cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-MonthlyAggregate.csv",1,"monthly");
+			cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-MonthlyAggregate.csv",2,"monthly");
+			cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-1-All-HourlyAggregate.csv",1,"hourly");
+			cantidadViajesCargados += cargarCSV("./data/bogota-cadastral-2018-2-All-HourlyAggregate.csv",2,"hourly");
 
+			int cantidadZonasCargadas = cargarJSON("./data/bogota-cadastral.json");
+			cantidadZonasCargadas = cargarJSON("./data/bogota-cadastral.json");
+			int cantidadNodosCargados = cargarTXT("./data/Nodes_of_red_vial-wgs84_shp.txt");
 
-					int cantidadZonasCargadas = cargarJSON("./data/bogota-cadastral.json");
-					int cantidadNodosCargados = cargarTXT("./data/Nodes_of_red_vial-wgs84_shp.txt");
+			resultados[0] = cantidadViajesCargados;
+			resultados[1] = cantidadZonasCargadas;
+			resultados[2] = cantidadNodosCargados;
 
-					resultados[0] = cantidadViajesCargados;
-					resultados[1] = cantidadZonasCargadas;
-					resultados[2] = cantidadNodosCargados;
-
-					return resultados;
+			return resultados;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("No sirvió :(");
 			e.printStackTrace();
-			
+
 		}
 		return null;
 
@@ -149,7 +155,7 @@ public class MVCModelo {
 			JsonElement elem = JsonParser.parseReader(reader);
 			JsonObject jobj = elem.getAsJsonObject();
 			JsonArray todas = jobj.getAsJsonArray("features");
-			zonasUber = new ArbolesRYN<>();
+			zonasUberRN = new ArbolesRYN<>();
 			//zonasUber = new ZonaUber[todas.size()];
 			for(int i = 0; i< todas.size(); i++)
 			{
@@ -164,11 +170,12 @@ public class MVCModelo {
 				JsonObject propertiesJSON = actual.getAsJsonObject("properties");
 				Properties properties = gson.fromJson(propertiesJSON, Properties.class);
 				String key = actual.getAsJsonObject("properties").getAsJsonObject("DISPLAY_NAME").getAsString();
-				zonasUber.put(key, new ZonaUber(typeFeature, nuevaGeometry, properties));
-				
+				zonasUberHash.put(key, (Comparable) new ZonaUber(typeFeature, nuevaGeometry, properties));
+				zonasUberRN.put(key, new ZonaUber(typeFeature, nuevaGeometry, properties));
+
 
 			}
-			return zonasUber.size();
+			return zonasUberRN.size();
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -195,20 +202,54 @@ public class MVCModelo {
 		br.close();
 		return contador;
 	}
-	
+
 	/**
 	 * Obtener las N letras más frecuentes por las que comienza el nombre de una zona
 	 */
 	public String[] reqFunc1A(short N)
 	{
+		Nodo[] nodosZonas = zonasUberHash.darData();
+		MaxPQ recurrenciaLetras = new MaxPQ<>();
+		for(Nodo nodo: nodosZonas)
+		{
+			ZonaUber actual = (ZonaUber) nodo.darItem();
+			recurrenciaLetras.insert(actual);
+			
+		}
+		
+
+		
+		
 		return null;
 	}
 	/**
 	 * Buscar los nodos que delimitan las zonas por Localización Geográfica (latitud, longitud)
 	 */
-	public String[] reqFunc2A(double pLatitud, double pLongitud)
+	public ArbolesRYN reqFunc2A(double pLatitud, double pLongitud)
 	{
-		return null;
+		DecimalFormat df = new DecimalFormat("#.###");
+		double latShort = Double.parseDouble(df.format(pLatitud));
+		double longShort = Double.parseDouble(df.format(pLongitud));
+		Iterable<String> keys = zonasUberRN.keys();
+		ArbolesRYN resultados = new ArbolesRYN<>();
+		for(String i: keys)
+		{
+			NodoBSTRojoNegro actualNodo = (NodoBSTRojoNegro) zonasUberRN.darValor(i);
+			ZonaUber actual = (ZonaUber) actualNodo.darValue();
+
+			for(int j = 0; j<actual.darGeometry().darCoordinatesSize(); j++)
+			{
+
+				double latActualShort = Double.parseDouble(df.format(actual.darGeometry().darCoordinates((short)j)[0]));
+				double longActualShort = Double.parseDouble(df.format(actual.darGeometry().darCoordinates((short)j)[1]));
+				if(latActualShort==latShort||longActualShort==longShort)
+				{
+					resultados.put(latActualShort, actualNodo);
+				}
+			}
+
+		}
+		return resultados;
 	}
 	/**
 	 * Buscar los tiempos promedio de viaje que están en un rango y que son del primer trimestre del 2018.
@@ -266,7 +307,7 @@ public class MVCModelo {
 	{
 		return null;
 	}
-	
+
 
 
 
