@@ -255,7 +255,7 @@ public class MVCModelo {
 	/**
 	 * Obtener las N zonas priorizadas por la mayor cantidad de nodos que definen su frontera.
 	 */
-	public String[] reqFunc3C(int N)
+	public String[] reqFunc3C(short N)
 	{
 		return null;
 	}

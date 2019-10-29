@@ -97,20 +97,25 @@ public class Controller {
 				String[] respuesta1C = modelo.reqFunc1C(ID1C, hora1C);
 			
 			case 9:
-				view.printMessage("");
-				short N = lector.nextInt();
-				String[] respuesta2C = modelo.reqFunc2C(N);
+				view.printMessage("Ingrese el ID de la zona de llegada");
+				int id2C = lector.nextInt();
+				view.printMessage("Ingrese el limite bajo de la hora");
+				double LimBajo2C = lector.nextInt();
+				view.printMessage("Ingrese el limite alto de la hora");
+				double LimAlto2C = lector.nextDouble();
+				
+				String[] respuesta2C = modelo.reqFunc2C(id2C, LimBajo2C, LimAlto2C);
 				
 			case 10:
-				view.printMessage("");
-				short N = lector.nextInt();
-				String[] respuesta3C = modelo.reqFunc3C(N);
-				
+				view.printMessage("Ingrese la cantidad de resultados que desea mostrar");
+				short N3C = (short) lector.nextDouble();
+				String[] respuesta3C = modelo.reqFunc3C(N3C);
+			/**	
 			case 11:
 				view.printMessage("");
 				short N = lector.nextInt();
 				String[] respuesta4C = modelo.reqFunc4C(N);
-			
+			*/
 			default: 
 				view.printMessage("--------- \n Opcion Invalida !! \n---------");
 				break;
