@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.google.gson.Gson;
@@ -297,19 +298,110 @@ public class MVCModelo {
 	{
 		return null;
 	}
+
 	/**
 	 * Buscar los N zonas que están más al norte.
 	 */
 	public String[] reqFunc1B(short N)
 	{
-		return null;
+		String ayuda;
+		Nodo[] nodosZonas = zonasUberHash.darData();
+		MaxPQ ZonasNorte = new MaxPQ<>();
+		for(int i =0; i< nodosZonas.length; i++)
+		{
+			Nodo nodo =nodosZonas[i];
+			ZonaUber actual = (ZonaUber) nodo.darItem();
+			ZonaUber siguiente = (ZonaUber) nodo.darSiguiente().darItem();
+			if(actual.darGeometry().darCoordinates(N).length<siguiente.darGeometry().darCoordinates(N).length)
+			{
+				ZonasNorte.insert(1, siguiente);
+				if(actual.darGeometry().darCoordinates(N).length>siguiente.darGeometry().darCoordinates(N).length)	
+				{
+					ZonasNorte.insert(1, actual);
+				}
+					if(ZonasNorte.contains(actual))
+					{
+						ZonasNorte.setPriority((int)(recurrenciaZonas.darPrioridad(actual))+1, actual);
+					}
+					else
+					{
+						ZonasNorte.insert(1, actual);
+					}
+			}
+		}
+
+		String[] masNorte = ZonasNorte.maxValues(N);
+		MaxPQ zonasN = new MaxPQ<>(masNorte.length);
+		for(Nodo nodoActual: nodosZonas)
+		{
+			ZonaUber actual = (ZonaUber) nodoActual.darItem();
+			String nomActual = actual.darProperties().darScanombre();
+			String cordActual = actual.darGeometry().darCoordinates(N).toString();
+			for(String corde: masNorte)
+			{
+				if(((String)(nomActual.charAt(0)+"")).equals(corde))
+				{
+					ayuda = nomActual+ "," +cordActual; 
+					zonasN.insert(ayuda.charAt(0), ayuda);
+				}
+			}
+		}
+
+		String partes[] = ayuda.split(",");
+		String nombre = partes[0];
+		String cordenada = partes[1];
+		String respuesta = "Las "+N+" zonas más al norte son: ";
+		for(int i = 0; i<masNorte.length;i++)
+		{
+			respuesta+=" "+masNorte[i];
+			respuesta+=" Las zonas del norte "+" son:"+nombre+","+ "y sus cordenadas son:"+ cordenada;
+			for(int j = 0; j<zonasN.size();j++)
+			{
+				String x = ((String) zonasN.darValues()[j]).charAt(0)+"";
+				if(x.equals(masNorte[i]))
+				{
+				masNorte[i] = respuesta;
+				}
+			}
+		}
+
+		return masNorte;
 	}
 	/**
 	 * Buscar nodos de la malla vial por Localización Geográfica (latitud, longitud).
 	 */
 	public String[] reqFunc2B(double pLatitud, double pLongitud)
 	{
-		return null;
+		int n = 0;
+		String[] resultados = new String[n];
+		DecimalFormat df = new DecimalFormat("#.###");
+		double latShort = Double.parseDouble(df.format(pLatitud));
+		double longShort = Double.parseDouble(df.format(pLongitud));
+		Iterable<String> keys = zonasUberRN.keys();
+		ArbolesRYN arbol = new ArbolesRYN<>();
+		for(String i: keys)
+		{
+			NodoBSTRojoNegro actualNodo = (NodoBSTRojoNegro) zonasUberRN.darValor(i);
+			ZonaUber actual = (ZonaUber) actualNodo.darValue();
+			for(int j = 0; j<actual.darGeometry().darCoordinatesSize(); j++)
+			{
+
+				double latActualShort = Double.parseDouble(df.format(actual.darGeometry().darCoordinates((short)j)[0]));
+				double longActualShort = Double.parseDouble(df.format(actual.darGeometry().darCoordinates((short)j)[1]));
+			
+				if(latActualShort==latShort||longActualShort==longShort)
+				{
+					
+					arbol.put(latActualShort, actualNodo);
+					if(arbol.contains(i))
+					{
+						resultados[n] = i;
+					}
+				}
+			}
+		}
+		n= arbol.height();
+		return resultados;
 	}
 	/**
 	 * Buscar los tiempos de espera que tienen una desviación estándar en un rango dado y que son del primer trimestre del 2018
@@ -318,6 +410,7 @@ public class MVCModelo {
 	{
 		return null;
 	}
+
 	/**
 	 * Retornar todos los tiempos de viaje promedio que salen de una zona dada y a una hora dada
 	 */

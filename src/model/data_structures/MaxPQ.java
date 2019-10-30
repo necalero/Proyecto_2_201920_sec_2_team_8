@@ -73,7 +73,19 @@ public class MaxPQ <Key, Value> implements Iterable<Key>
 			sink(k);
 		assert isMaxHeap();
 	}
-
+	
+	/**
+	 * Crea tiempos de viaje con los datos suministrados y los carga a la cola de prioridad entregada.
+	 * @param datos. Arreglo de enteros con los tiempos a crear.
+	 * @param cola. Cola de prioridad en donde se van a cargar los datos.
+	 */
+	private void cargarDatos(int[] datos,MaxPQ<Key,Integer> cola)
+	{
+		for (int tiempo: datos)
+		{
+			cola.insert(null, tiempo);
+		}
+	}
 
 
 	/**
