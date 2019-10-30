@@ -206,21 +206,60 @@ public class MVCModelo {
 	/**
 	 * Obtener las N letras más frecuentes por las que comienza el nombre de una zona
 	 */
-	public String[] reqFunc1A(short N)
+	@SuppressWarnings("unchecked")
+
+	public String reqFunc1A(short N)
 	{
 		Nodo[] nodosZonas = zonasUberHash.darData();
 		MaxPQ recurrenciaLetras = new MaxPQ<>();
 		for(Nodo nodo: nodosZonas)
 		{
 			ZonaUber actual = (ZonaUber) nodo.darItem();
-			recurrenciaLetras.insert(actual);
-			
+			char letraPrincipal = actual.darProperties().darScanombre().charAt(0);
+			if(recurrenciaLetras.contains(letraPrincipal))
+			{
+				recurrenciaLetras.setPriority((int)(recurrenciaLetras.darPrioridad(letraPrincipal))+1, letraPrincipal);
+			}
+			else
+			{
+				recurrenciaLetras.insert(1, letraPrincipal);
+			}
 		}
-		
 
-		
-		
-		return null;
+		String[] masFrecuentes = recurrenciaLetras.maxValues(N);
+		MaxPQ zonasLetras = new MaxPQ<>(masFrecuentes.length);
+
+		for(Nodo nodoActual: nodosZonas)
+		{
+			ZonaUber actual = (ZonaUber) nodoActual.darItem();
+			String nomActual = actual.darProperties().darScanombre();
+			for(String letra: masFrecuentes)
+			{
+				if(((String)(nomActual.charAt(0)+"")).equals(letra))
+				{
+					zonasLetras.insert(nomActual.charAt(0), nomActual);
+				}
+			}
+		}
+
+		String respuesta = "Las "+N+" letras mas recurrentes son: ";
+		for(int i = 0; i<masFrecuentes.length;i++)
+		{
+			respuesta+=" "+masFrecuentes[i];
+			respuesta+=" Las zonas que empiezan por "+masFrecuentes[i]+" son:";
+			for(int j = 0; j<zonasLetras.size();j++)
+			{
+				String x = ((String) zonasLetras.darValues()[j]).charAt(0)+"";
+				if(x.equals(masFrecuentes[i]))
+				{
+					respuesta+=" "+zonasLetras.darValues()[j];
+				}
+			}
+
+
+		}
+
+		return respuesta;
 	}
 	/**
 	 * Buscar los nodos que delimitan las zonas por Localización Geográfica (latitud, longitud)

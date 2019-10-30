@@ -2,6 +2,8 @@
 	import java.util.Comparator;
 	import java.util.Iterator;
 	import java.util.NoSuchElementException;
+
+import org.apache.commons.lang3.text.translate.NumericEntityUnescaper;
 public class MaxPQ <Key, Value> implements Iterable<Key> 
 {
 	private Key[] pqKeys;                    // store items at indices 1 to n
@@ -107,6 +109,20 @@ public class MaxPQ <Key, Value> implements Iterable<Key>
 		if (isEmpty()) throw new NoSuchElementException("Priority queue underflow");
 		return pqValues[1];
 	}
+	
+	public String[] maxValues(int N)
+	{
+		if (isEmpty()) throw new NoSuchElementException("Priority queue underflow");
+		else
+		{
+			String[] valores = new String[N];
+			for(int i = 0; i<N; i++)
+			{
+				valores[i]=pqValues[i+1].toString();
+			}
+			return valores;
+		}
+	}
 	// helper function to double the size of the heap array
 	private void resize(int capacity) {
 		assert capacity > n;
@@ -155,7 +171,50 @@ public class MaxPQ <Key, Value> implements Iterable<Key>
 		assert isMaxHeap();
 		return max;
 	}
-
+	
+	public boolean contains(Value x)
+	{
+		boolean contiene = false;
+		if(buscarIndiceValor(x)>=0)
+			contiene = true;
+		return contiene;
+	}
+	
+	public void setPriority(Key y, Value x) 
+	{
+		int  i = buscarIndiceValor(x);
+		pqKeys[i] = y;
+		
+	}
+	
+	public Key darPrioridad(Value x)
+	{
+		return pqKeys[buscarIndiceValor(x)];
+	}
+	
+	public int buscarIndiceValor(Value x)
+	{
+		int valor = -1;
+		boolean seEncontro = false;
+		Iterator<Key> llaves = iterator();
+		int i = 1;
+		while(llaves.hasNext()&&!seEncontro)
+		{
+			if(pqValues[i].equals(x));
+			{
+				seEncontro=true;
+				valor = i;
+			}
+			i++;
+			llaves.next();
+		}
+		return valor;
+	}
+	
+	public Value[] darValues()
+	{
+		return pqValues;
+	}
 
 	/***************************************************************************
 	 * Helper functions to restore the heap invariant.
@@ -220,6 +279,8 @@ public class MaxPQ <Key, Value> implements Iterable<Key>
 		if (right <= n && less(k, right)) return false;
 		return isMaxHeapOrdered(left) && isMaxHeapOrdered(right);
 	}
+	
+	
 
 
 	/***************************************************************************

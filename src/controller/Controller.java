@@ -50,7 +50,8 @@ public class Controller {
 			case 2:
 				view.printMessage("Ingrese la cantidad de letras a consultar.");
 				short N = (short) lector.nextInt();
-				String[] respuesta1A = modelo.reqFunc1A(N);
+				String respuesta1A = modelo.reqFunc1A(N);
+				view.printMessage(respuesta1A);
 				
 				
 			case 3:
