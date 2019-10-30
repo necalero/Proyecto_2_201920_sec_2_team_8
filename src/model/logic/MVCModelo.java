@@ -304,7 +304,7 @@ public class MVCModelo {
 	 */
 	public String[] reqFunc1B(short N)
 	{
-		String ayuda;
+		String ayuda = null;
 		Nodo[] nodosZonas = zonasUberHash.darData();
 		MaxPQ ZonasNorte = new MaxPQ<>();
 		for(int i =0; i< nodosZonas.length; i++)
@@ -321,7 +321,7 @@ public class MVCModelo {
 				}
 					if(ZonasNorte.contains(actual))
 					{
-						ZonasNorte.setPriority((int)(recurrenciaZonas.darPrioridad(actual))+1, actual);
+						ZonasNorte.setPriority((int)(ZonasNorte.darPrioridad(actual))+1, actual);
 					}
 					else
 					{
