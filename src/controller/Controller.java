@@ -59,7 +59,8 @@ public class Controller {
 				double lat2a = lector.nextDouble();
 				view.printMessage("Ingrese la longitud");
 				double lon2a = lector.nextDouble();
-				String[] respuesta2A = modelo.reqFunc2A(lat2a,lon2a);
+				String respuesta2A = modelo.reqFunc2A(lat2a,lon2a);
+				view.printMessage(respuesta2A);
 				
 			case 4:
 				view.printMessage("Ingrese un limite bajo de segundos");
@@ -68,27 +69,32 @@ public class Controller {
 				double limMax3A = lector.nextDouble();
 				view.printMessage("Ingrese la cantidad de resultados que desea mostrar");
 				short N3A = (short) lector.nextDouble();
-				String[] respuesta3A = modelo.reqFunc3A(limMin3A, limMax3A, N3A);
+				String respuesta3A = modelo.reqFunc3A(limMin3A, limMax3A, N3A);
+				view.printMessage(respuesta3A);
+				
 				
 			case 5:
 				view.printMessage("Ingrese la cantidad de resultados que desea mostrar");
 				short N1B = (short) lector.nextDouble();
-				String[] respuesta1B = modelo.reqFunc1B(N1B);
+				String respuesta1B = modelo.reqFunc1B(N1B);
+				view.printMessage(respuesta1B);
 				
 			case 6:
 				view.printMessage("Ingrese la latitud");
 				double lat2B = lector.nextDouble();
 				view.printMessage("Ingrese la longitud");
 				double lon2B = lector.nextDouble();
-				String[] respuesta2B = modelo.reqFunc2B(lat2B,lon2B);
+				String respuesta2B = modelo.reqFunc2B(lat2B,lon2B);
+				view.printMessage(respuesta2B);
 				
 			case 7:
 				view.printMessage("Ingrese el limite bajo de la desviacion estandar");
 				double LimBajo3B = lector.nextInt();
 				view.printMessage("Ingrese el limite alto de la desviacion estandar");
 				double LimAlto3B = lector.nextDouble();
+				String respuesta3B = modelo.reqFunc3B(LimBajo3B, LimAlto3B);
+				view.printMessage(respuesta3B);
 				
-				String[] respuesta3B = modelo.reqFunc3B(LimBajo3B, LimAlto3B);
 				
 			case 8:
 				view.printMessage("Ingrese el ID de la zona de salida");

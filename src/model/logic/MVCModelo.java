@@ -265,7 +265,7 @@ public class MVCModelo {
 	/**
 	 * Buscar los nodos que delimitan las zonas por Localización Geográfica (latitud, longitud)
 	 */
-	public ArbolesRYN reqFunc2A(double pLatitud, double pLongitud)
+	public String reqFunc2A(double pLatitud, double pLongitud)
 	{
 		DecimalFormat df = new DecimalFormat("#.###");
 		double latShort = Double.parseDouble(df.format(pLatitud));
@@ -289,12 +289,21 @@ public class MVCModelo {
 			}
 
 		}
-		return resultados;
+		int numeroNodos = resultados.size();
+		String respuesta= "El numero de nodos retornados es "+numeroNodos;
+		Iterable<NodoBSTRojoNegro> keysR = resultados.keys();
+		for(NodoBSTRojoNegro nodo: keysR)
+		{
+			ZonaUber actual = (ZonaUber) nodo.darValue();
+			respuesta+=" Latitud: "+actual.darGeometry().darCoordinates((short) 0)[0]+", Longitud: "+actual.darGeometry().darCoordinates((short) 0)[1];
+			respuesta+=" Nombre de la zona a la que pertenece: " + actual.darProperties().darScanombre()+". ";
+		}
+		return respuesta;
 	}
 	/**
 	 * Buscar los tiempos promedio de viaje que están en un rango y que son del primer trimestre del 2018.
 	 */
-	public String[] reqFunc3A(double pMin, double pMax, short N)
+	public String reqFunc3A(double pMin, double pMax, short N)
 	{
 		return null;
 	}
@@ -302,7 +311,7 @@ public class MVCModelo {
 	/**
 	 * Buscar los N zonas que están más al norte.
 	 */
-	public String[] reqFunc1B(short N)
+	public String reqFunc1B(short N)
 	{
 		String ayuda = null;
 		Nodo[] nodosZonas = zonasUberHash.darData();
@@ -364,13 +373,19 @@ public class MVCModelo {
 				}
 			}
 		}
+		String respuestaFinal="";
+		for(String corde: masNorte)
+		{
+			respuestaFinal+=corde+" ";
+		}
+		 
 
-		return masNorte;
+		return respuestaFinal;
 	}
 	/**
 	 * Buscar nodos de la malla vial por Localización Geográfica (latitud, longitud).
 	 */
-	public String[] reqFunc2B(double pLatitud, double pLongitud)
+	public String reqFunc2B(double pLatitud, double pLongitud)
 	{
 		int n = 0;
 		String[] resultados = new String[n];
@@ -401,12 +416,17 @@ public class MVCModelo {
 			}
 		}
 		n= arbol.height();
-		return resultados;
+		String respuestaFinal = "";
+		for(String resultadoIndividual : resultados)
+		{
+			respuestaFinal+=resultadoIndividual+" ";
+		}
+		return respuestaFinal;
 	}
 	/**
 	 * Buscar los tiempos de espera que tienen una desviación estándar en un rango dado y que son del primer trimestre del 2018
 	 */
-	public String[] reqFunc3B(double pLimiteBajoDesviacionEstandar, double pLimiteAltoDesviacionEstandar)
+	public String reqFunc3B(double pLimiteBajoDesviacionEstandar, double pLimiteAltoDesviacionEstandar)
 	{
 		return null;
 	}
@@ -414,28 +434,28 @@ public class MVCModelo {
 	/**
 	 * Retornar todos los tiempos de viaje promedio que salen de una zona dada y a una hora dada
 	 */
-	public String[] reqFunc1C(int pIdZonaSalida, double pHora)
+	public String reqFunc1C(int pIdZonaSalida, double pHora)
 	{
 		return null;
 	}
 	/**
 	 * Retornar todos los tiempos de viaje que llegan de una zona dada y en un rango de horas
 	 */
-	public String[] reqFunc2C(int idZonaLlegada, double pHoraMin, double pHoraMax)
+	public String reqFunc2C(int idZonaLlegada, double pHoraMin, double pHoraMax)
 	{
 		return null;
 	}
 	/**
 	 * Obtener las N zonas priorizadas por la mayor cantidad de nodos que definen su frontera.
 	 */
-	public String[] reqFunc3C(short N)
+	public String reqFunc3C(short N)
 	{
 		return null;
 	}
 	/**
 	 * Gráfica ASCII - Porcentaje de datos faltantes para el primer semestre 2018.
 	 */
-	public String[][] reqFunc4C(int N)
+	public String reqFunc4C(int N)
 	{
 		return null;
 	}
